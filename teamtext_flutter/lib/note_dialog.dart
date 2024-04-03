@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 
 void showNoteDialog({
   required BuildContext context,
-  String text = '',
   required ValueChanged<String> onSaved,
 }) {
   showDialog(
     context: context,
     builder: (context) => NoteDialog(
-      text: text,
       onSaved: onSaved,
     ),
   );
@@ -16,12 +14,10 @@ void showNoteDialog({
 
 class NoteDialog extends StatefulWidget {
   const NoteDialog({
-    required this.text,
     required this.onSaved,
     super.key,
   });
 
-  final String text;
   final ValueChanged<String> onSaved;
 
   @override
@@ -34,7 +30,6 @@ class NoteDialogState extends State<NoteDialog> {
   @override
   void initState() {
     super.initState();
-    controller.text = widget.text;
   }
 
   @override

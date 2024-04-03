@@ -73,24 +73,6 @@ class Endpoints extends _i1.EndpointDispatch {
             params['note'],
           ),
         ),
-        'updateNote': _i1.MethodConnector(
-          name: 'updateNote',
-          params: {
-            'note': _i1.ParameterDescription(
-              name: 'note',
-              type: _i1.getType<_i3.Note>(),
-              nullable: false,
-            )
-          },
-          call: (
-            _i1.Session session,
-            Map<String, dynamic> params,
-          ) async =>
-              (endpoints['notes'] as _i2.NotesEndpoint).updateNote(
-            session,
-            params['note'],
-          ),
-        ),
       },
     );
     modules['serverpod_auth'] = _i4.Endpoints()..initializeEndpoints(server);

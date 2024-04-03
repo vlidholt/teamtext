@@ -108,6 +108,10 @@ class _NotesPageState extends State<NotesPage> {
   }
 
   Future<void> _deleteNote(Note note) async {
+    setState(() {
+      _notes!.remove(note);
+    });
+
     try {
       await client.notes.deleteNote(note);
       await _loadNotes();
@@ -116,18 +120,23 @@ class _NotesPageState extends State<NotesPage> {
     }
   }
 
-  Future<void> _createNote(Note note) async {
+  Future<void> _createNote(String text) async {
+    var note = Note(
+      text: text,
+      createdById: sessionManager.signedInUser!.id!,
+    );
+
+    // Add the note to the list of notes before we've received
+    // a response from the server which makes the UI feel more
+    // responsive.
+    setState(() {
+      _notes!.add(note);
+    });
+
+    // Actually create the note on the server.
+
     try {
       await client.notes.createNote(note);
-      await _loadNotes();
-    } catch (e) {
-      _connectionFailed(e);
-    }
-  }
-
-  Future<void> _updateNote(Note note) async {
-    try {
-      await client.notes.updateNote(note);
       await _loadNotes();
     } catch (e) {
       _connectionFailed(e);
@@ -168,27 +177,6 @@ class _NotesPageState extends State<NotesPage> {
               itemBuilder: ((context, index) {
                 return ListTile(
                   title: Text(_notes![index].text),
-                  onTap: () {
-                    // When we tap a list tile we want to show a dialog where
-                    // we can edit the note.
-                    showNoteDialog(
-                      context: context,
-                      text: _notes![index].text,
-                      onSaved: (text) {
-                        // We lazily update the note in the list of notes before
-                        // we've received a response from the server which makes
-                        // the UI feel more responsive.
-                        setState(() {
-                          _notes![index].text = text;
-                        });
-
-                        // Actually update the note on the server.
-                        _updateNote(
-                          _notes![index],
-                        );
-                      },
-                    );
-                  },
                   leading: CircularUserImage(
                     userInfo: _notes![index].createdBy,
                     size: 32,
@@ -198,15 +186,6 @@ class _NotesPageState extends State<NotesPage> {
                     onPressed: () {
                       // Get the note that we want to delete.
                       var note = _notes![index];
-
-                      // We lazily remove the note from the list of notes before
-                      // we've received a response from the server which makes
-                      // the UI feel more responsive.
-                      setState(() {
-                        _notes!.remove(note);
-                      });
-
-                      // Actually delete the note from the server.
                       _deleteNote(note);
                     },
                   ),
@@ -222,18 +201,8 @@ class _NotesPageState extends State<NotesPage> {
                 showNoteDialog(
                   context: context,
                   onSaved: (text) {
-                    var note = Note(
-                      text: text,
-                      createdById: sessionManager.signedInUser!.id!,
-                    );
-
-                    // Add the note to the list of notes before we've received
-                    // a response from the server which makes the UI feel more
-                    // responsive.
-                    _notes!.add(note);
-
                     // Actually create the note on the server.
-                    _createNote(note);
+                    _createNote(text);
                   },
                 );
               },
